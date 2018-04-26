@@ -38,8 +38,6 @@ var socketio = require('socket.io');
 
 Socket.io has a function to detect if someone connected to your app
 ```
-
-```
 io.sockets.on('connection', function(socket) {
     console.log('A user connected to your app');
 }
@@ -54,7 +52,7 @@ socket.on('disconnect', function(data) {
  
 
 ## Data life cycle
-
+![Data life cycle](https://octodex.github.com/images/yaktocat.png)
 
 ### Wishlist
 
@@ -80,3 +78,4 @@ node server.js
 ```
 
 ### Live
+[live](https://rtw-twitter-app.herokuapp.com/)
