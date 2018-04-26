@@ -2,7 +2,6 @@ var socket = io();
 
 var tweets = document.querySelector('.tweets');
 var tweetsHolder = document.querySelector('#tweetsHolder');
-var tweetInterest = document.querySelector('#newHash');
 var nicknameForm = document.querySelector('#setNickname');
 var nicknameInput = document.querySelector('#nickname');
 var nicknameWrapper = document.querySelector('.nicknameWrapper');
@@ -15,9 +14,7 @@ messageForm.addEventListener("submit", function(e) {
   e.preventDefault();
 
   socket.emit('send message', messageBox.value);
-  console.log(messageBox);
   messageBox.value = '';
-  console.log(messageBox)
 });
 
 socket.on('new message', function(data) {

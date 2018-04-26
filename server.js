@@ -16,6 +16,7 @@ require('dotenv').config();
 // create variable for user's input
 var userInput = '';
 
+// users object
 var users = {};
 
 // Set View Engine
@@ -50,7 +51,6 @@ app.get('/results', function(req, res) {
 
 io.sockets.on('connection', function(socket) {
   socket.on('send message', function(data) {
-    console.log(data)
     io.sockets.emit('new message', {msg: data, nick: socket.nickname});
   });
 
