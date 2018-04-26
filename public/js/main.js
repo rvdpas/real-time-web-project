@@ -21,7 +21,9 @@ messageForm.addEventListener("submit", function(e) {
 });
 
 socket.on('new message', function(data) {
-  chat.innerHTML += '<strong>' + data.nick + ': </strong>' + data.msg + '<br>';
+  var p = document.createElement("p");
+  p.innerHTML = '<strong>' + data.nick + ': </strong>' + data.msg + '<br>';
+  chat.appendChild(p);
 });
 
 nicknameForm.addEventListener("submit", function(e) {
@@ -67,6 +69,6 @@ function newTweet(tweet) {
 
 // If the server is offline, alert the user.
 socket.on('disconnect', function() {
-  var h2 = document.querySelector('tweets');
-  h2.insertAdjacentHTML('afterend', '<div class="server-down">De server is offline en het is niet gelukt om te verbinden met de server.</div>');
+  var h2 = document.querySelector('.tweets');
+  h2.innerHTML = '<div class="server-down">De server is offline en het is niet gelukt om te verbinden met de server.</div>';
 });
