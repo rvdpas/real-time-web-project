@@ -11,6 +11,28 @@ html, body {
   background: #f5f8fa;
 }
 
+#chat {
+  display: none;
+  height: 400px;
+  float: left;
+  border: 1px solid #c1c1c1;
+  border-radius: 4px;
+  position: relative;
+  width: 22%;
+  background: #fff;
+}
+
+#chat #send-message {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}
+
+.users {
+  display: none;
+}
+
 .user-window {
   max-width: 100%;
   position: absolute;
@@ -31,6 +53,7 @@ html, body {
   background: none;
   padding: 0.3em 0.5em;
 }
+
 .msg-window {
   position: fixed;
   top: 50%;
@@ -60,6 +83,7 @@ html, body {
 main {
   width: 70%;
   margin: 0 auto;
+  margin-top: 200px;
 }
 
 main ul {
@@ -69,10 +93,12 @@ main ul {
 
 #tweetsHolder {
   width: 70%;
+  margin-right: 3%;
 }
 
-#countryHolder {
-  width: 30%;
+.nicknameWrapper {
+  float: left;
+  width: 20%;
 }
 
 main ul li {
@@ -83,10 +109,6 @@ main ul li {
   margin-bottom: 1em;
   padding: 1em;
   background: #fff;
-}
-
-main h1, h2 {
-  text-align: center;
 }
 
 main h2 {

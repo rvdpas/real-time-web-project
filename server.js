@@ -16,6 +16,8 @@ require('dotenv').config();
 // create variable for user's input
 var userInput = '';
 
+var users = {};
+
 // Set View Engine
 app.set('view engine', 'ejs' );
 
@@ -41,45 +43,57 @@ app.get('/', function(req, res) {
   res.render('index.ejs');
 });
 
-var params = {screen_name: 'nodejs'};
-client.get('statuses/user_timeline', params, function(error, tweets, response) {
-  if (!error) {
-    res.render('tweets');
-  }
-});
-
 // Get search results
 app.get('/results', function(req, res) {
   res.render('results.ejs');
 });
 
-// Post tweets to results page
-app.post('/results', function(req, res) {
-  userInput = '';
-  userInput = req.body.hash;
+io.sockets.on('connection', function(socket) {
+  socket.on('send message', function(data) {
+    io.sockets.emit('new message', {msg: data, nick: socket.nickname});
+  });
 
-  // Request tweets based on the users input
-  // var stream = client.stream('statuses/filter', {track: userInput}, function(stream) {
-  //   var counter = 0;
-  //   res.render('results.ejs');
+  socket.on('new user', function(data, callback) {
+    if (data in users) {
+      callback(false);
+    } else {
+      callback(true);
+      socket.nickname = data;
+      users[socket.nickname] = socket;
+      updateNicknames();
+    }
+  });
 
-  //   // on every new tweet count + 1
-  //   stream.on('data', function(tweet) {
-  //    counter++;
-  //    io.emit('new tweet', tweet);
-  //    io.emit('update counter', counter);
-  //   });
+  // updates nicknames if someone leaves or joins
+  function updateNicknames() {
+    io.sockets.emit('usernames', Object.keys(users));
+  };
 
-  //   stream.on('error', function(error) {
-  //     console.log(error);
-  //   });
-  // });
+  socket.on('disconnect', function(data) {
+    if (!socket.nickname) return;
+    delete users[socket.nickname];
+    updateNicknames();
+
+    console.log('user disconnected');
+    io.emit('disconnect');
+  });
 });
 
 io.on('connection', function(socket) {
-  socket.on('disconnect', function() {
-    io.emit('disconnect');
+  socket.join('test');
+});
+
+// Post tweets to results page
+app.post('/results', function(req, res) {
+  room = userInput;
+  userInput = '';
+  userInput = req.body.hash;
+
+  client.get('search/tweets', {q: userInput}, function(err, tweets, res) {
+    io.emit('new tweet', tweets);
   });
+
+  res.render('results.ejs');
 });
 
 server.listen(process.env.PORT || 8080, function() {

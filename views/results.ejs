@@ -1,11 +1,28 @@
 <% include partials/head.ejs %>
 
     <main>
-        <h1>tweets:</h1>
-        <h2 class="counter"></h2>
+        <div class="tweets">
+            <h1>Tweets:</h1>
 
-        <ul id="tweetsHolder"></ul>
-        <ul id="countryHolder"></ul>
+            <ul id="tweetsHolder"></ul>
+        </div>
+
+        <section class="nicknameWrapper">
+            <h1>Enter a username:</h1>
+            <form id="setNickname">
+                <input size="35" id="nickname">
+                <input type="submit">
+            </form>
+        </section>
+
+        <div class="users"></div>
+
+        <div id="chat">
+            <form type="POST" action="/results" id="send-message">
+                <input id="message">
+                <input type="submit">
+            </form>
+        </div>
     </main>
 
 <% include partials/footer.ejs %>
