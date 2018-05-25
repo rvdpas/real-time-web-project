@@ -9,7 +9,7 @@ const {isRealString} = require('./utils/validation');
 const {Users} = require('./utils/users');
 
 const publicPath = path.join(__dirname, '../public');
-const port = process.env.PORT || 3000;
+var port = process.env.PORT || 8000
 var app = express();
 var server = http.createServer(app);
 var io = socketIO(server);
@@ -77,6 +77,6 @@ io.on('connection', (socket) => {
 	});
 });
 
-server.listen(port, () => {
-	console.log(`Server is up on ${port}`);
+server.listen(port, function() {
+    console.log("App is running on port " + port);
 });
