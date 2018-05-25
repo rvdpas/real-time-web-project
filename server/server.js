@@ -9,7 +9,7 @@ const {isRealString} = require('./utils/validation');
 const {Users} = require('./utils/users');
 
 const publicPath = path.join(__dirname, '../public');
-const port = process.env.PORT || 3000;
+var port = process.env.PORT || 8000
 var app = express();
 var server = http.createServer(app);
 var io = socketIO(server);
@@ -26,6 +26,10 @@ var client = new Twitter({
   consumer_secret: process.env.CONSUMER_SECRET,
   access_token_key: process.env.ACCESS_TOKEN,
   access_token_secret: process.env.ACCESS_TOKEN_SECRET
+});
+
+app.get('/', function(req, res) {
+  res.render('index.html');
 });
 
 io.on('connection', (socket) => {
@@ -48,7 +52,7 @@ io.on('connection', (socket) => {
 
 		io.to(params.room).emit('updateUserList', users.getUserList(params.room));
 		socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app'));
-		socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined.`));
+		socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined the room.`));
 
 		callback();
 	});
@@ -73,6 +77,6 @@ io.on('connection', (socket) => {
 	});
 });
 
-server.listen(port, () => {
-	console.log(`Server is up on ${port}`);
+server.listen(port, function() {
+    console.log("App is running on port " + port);
 });
