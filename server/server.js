@@ -33,14 +33,10 @@ app.get('/', function(req, res) {
 });
 
 io.on('connection', (socket) => {
-	console.log('new user connected');
-
 	socket.on('join', (params, callback) => {
 		if (! isRealString(params.name) || ! isRealString(params.room)) {
 			return callback('Name and room name are required');
 		}
-
-		console.log(params) 
 
 		client.get('search/tweets', {q: params.room}, function(err, tweets, res) {
 			io.to(params.room).emit('new Tweet', tweets);
