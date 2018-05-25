@@ -1,35 +1,24 @@
-// require modules
-var path = require('path');
-var http = require('http');
-var bodyParser = require('body-parser');
-var express = require('express');
+const path = require('path');
+const http = require('http');
+const express = require('express');
 var Twitter = require('twitter');
-var socketio = require('socket.io');
+const socketIO = require('socket.io');
 
+const {generateMessage} = require('./utils/message');
+const {isRealString} = require('./utils/validation');
+const {Users} = require('./utils/users');
+
+const publicPath = path.join(__dirname, '../public');
+const port = process.env.PORT || 3000;
 var app = express();
 var server = http.createServer(app);
-var io = socketio.listen(server);
+var io = socketIO(server);
+var users = new Users();
 
 // configure dotenv
 require('dotenv').config();
 
-// create variable for user's input
-var userInput = '';
-
-// users object
-var users = {};
-
-// Set View Engine
-app.set('view engine', 'ejs' );
-
-// set dynamic files to public map
-app.set('views', path.join(__dirname, 'views'));
-
-// use body-parser for middle ware
-app.use(bodyParser.urlencoded({ extended: false }));
-
-// set static files to public map
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(publicPath));
 
 // Setting Twitter credentials
 var client = new Twitter({
@@ -39,64 +28,55 @@ var client = new Twitter({
   access_token_secret: process.env.ACCESS_TOKEN_SECRET
 });
 
-// load index page
 app.get('/', function(req, res) {
-  res.render('index.ejs');
+  res.render('index.html');
 });
 
-// Get search results
-app.get('/results', function(req, res) {
-  res.render('results.ejs');
+io.on('connection', (socket) => {
+	console.log('new user connected');
+
+	socket.on('join', (params, callback) => {
+		if (! isRealString(params.name) || ! isRealString(params.room)) {
+			return callback('Name and room name are required');
+		}
+
+		console.log(params) 
+
+		client.get('search/tweets', {q: params.room}, function(err, tweets, res) {
+			io.to(params.room).emit('new Tweet', tweets);
+		});
+
+		socket.join(params.room);
+		users.removeUser(socket.id);
+		users.addUser(socket.id, params.name, params.room);
+
+		io.to(params.room).emit('updateUserList', users.getUserList(params.room));
+		socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app'));
+		socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined.`));
+
+		callback();
+	});
+
+	socket.on('createMessage', (message, callback) => {
+		var user = users.getUser(socket.id);
+
+		if (user && isRealString(message.text)) {
+			io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+		}
+		
+		callback();
+	});
+
+	socket.on('disconnect', () => {
+		var user = users.removeUser(socket.id);
+
+		if (user) {
+			io.to(user.room).emit('updateUserList', users.getUserList(user.room));
+			io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left the room.`));
+		}
+	});
 });
 
-io.sockets.on('connection', function(socket) {
-  socket.on('send message', function(data) {
-    io.sockets.emit('new message', {msg: data, nick: socket.nickname});
-  });
-
-  socket.on('new user', function(data, callback) {
-    if (data in users) {
-      callback(false);
-    } else {
-      callback(true);
-      socket.nickname = data;
-      users[socket.nickname] = socket;
-      updateNicknames();
-    }
-  });
-
-  // updates nicknames if someone leaves or joins
-  function updateNicknames() {
-    io.sockets.emit('usernames', Object.keys(users));
-  };
-
-  socket.on('disconnect', function(data) {
-    if (!socket.nickname) return;
-    delete users[socket.nickname];
-    updateNicknames();
-
-    console.log('user disconnected');
-    io.emit('disconnect');
-  });
-});
-
-io.on('connection', function(socket) {
-  socket.join('test');
-});
-
-// Post tweets to results page
-app.post('/results', function(req, res) {
-  room = userInput;
-  userInput = '';
-  userInput = req.body.hash;
-
-  client.get('search/tweets', {q: userInput}, function(err, tweets, res) {
-    io.emit('new tweet', tweets);
-  });
-
-  res.render('results.ejs');
-});
-
-server.listen(process.env.PORT || 8080, function() {
-  console.log("Server started on port 8080...");
+server.listen(port, () => {
+	console.log(`Server is up on ${port}`);
 });
