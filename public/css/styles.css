@@ -19,6 +19,22 @@ button:hover {
     font-size: .95rem
 }
 
+.server-down {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    color: #fff;
+    background: -webkit-linear-gradient(90deg, #16222A 10%, #3A6073 90%); 
+    background: -moz-linear-gradient(90deg, #16222A 10%, #3A6073 90%); 
+    background: -ms-linear-gradient(90deg, #16222A 10%, #3A6073 90%); 
+    background: -o-linear-gradient(90deg, #16222A 10%, #3A6073 90%); 
+    background: linear-gradient(90deg, #16222A 10%, #3A6073 90%); 
+    padding: 24px;
+    text-align: center;
+    opacity: 0.9;
+}
+
 li,
 ul {
     list-style: none;
